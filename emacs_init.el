@@ -28,6 +28,9 @@
   :config
   (unicode-fonts-setup))
 
+(use-package flymake-ruff
+  :ensure t
+  :hook (python-mode . flymake-ruff-load))
 
 (setq exec-path-from-shell-variables '())
 
@@ -69,7 +72,9 @@
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 (add-hook 'python-mode-hook
  	  (lambda (&optional val) (turn-on-eldoc-mode)))
-(add-hook 'python-mode-hook 'blacken-mode)
+
+;; Disabled for netrias since the world doesn't use black
+;; (add-hook 'python-mode-hook 'blacken-mode)
 
 (dolist (hook '(text-mode-hook))
   (add-hook hook (lambda () (flyspell-mode 1))))
@@ -79,9 +84,8 @@
 (add-hook 'markdown-mode-hook 'electric-quote-mode)
 (add-hook 'markdown-mode-hook 'auto-fill-mode)
 
-;;; Bind the path so that we don't pickup virtualenv binaries that may be set
 (let ((exec-path '("~/.local/bin", "/opt/homebrew/bin", "/usr/local/bin")))
-  (setq blacken-executable (executable-find "black")))
+  (setq flymake-ruff-program (executable-find "ruff")))
 
 ;;; Bind the path so that we don't pickup virtualenv binaries that may be set
 
