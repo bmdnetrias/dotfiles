@@ -66,12 +66,14 @@
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-global-mode 1))
 
+(use-package ztree)
+
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
 
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 (add-hook 'python-mode-hook
- 	  (lambda (&optional val) (turn-on-eldoc-mode)))
+ 	  (lambda (&optional val) (turn-on-eldoc-mode) (flymake-mode)))
 
 ;; Disabled for netrias since the world doesn't use black
 ;; (add-hook 'python-mode-hook 'blacken-mode)
@@ -83,6 +85,8 @@
 
 (add-hook 'markdown-mode-hook 'electric-quote-mode)
 (add-hook 'markdown-mode-hook 'auto-fill-mode)
+
+;; (add-to-list 'ztree-diff-filter-list "__pycache__")
 
 (let ((exec-path '("~/.local/bin", "/opt/homebrew/bin", "/usr/local/bin")))
   (setq flymake-ruff-program (executable-find "ruff")))

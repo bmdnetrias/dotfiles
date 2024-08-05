@@ -3,7 +3,7 @@
 
 [user]
 	name = Brian Dennis
-	email = bmd+github@crossjam.net
+	email = bdennis+github@netrias.com
 	
 # Specific to dotfiles to use a key authorized for my personal github account
 # My dotfiles repo is private but useful for consistency across personal and work machines
@@ -17,11 +17,13 @@
 [core]
 	excludesfile = "~/.gitignore"
 
-[url "git@github.com:"]
-    insteadOf = https://github.com/
+# [url "git@github.com:"]
+#     insteadOf = https://github.com/
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[filter "annex"]
+	process = git-annex filter-process
