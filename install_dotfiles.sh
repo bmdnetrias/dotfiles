@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 export NONINTERACTIVE=t
 export DEBIAN_FRONTEND=noninteractive
 # export GIT_HTTP_MAX_REQUEST_BUFFER=100M
