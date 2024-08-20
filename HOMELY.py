@@ -64,6 +64,9 @@ installpkg("svn", apt="subversion")
 installpkg("ispell")
 installpkg("aspell")
 installpkg("tree")
+installpkg("fd", apt="fd-find")
+installpkg("fzf")
+installpkg("git-delta")
 
 if install_system == "Darwin":
     installpkg("coreutils")
