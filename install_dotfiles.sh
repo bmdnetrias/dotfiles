@@ -8,9 +8,9 @@ export PYTHONUSERBASE=$HOME/.local
 
 # On macOS, it's best to install the python.org version of python
 if [[ $OSTYPE == "darwin"* ]]; then
-    PIP_REQUIRE_VIRTUALENV=false /Library/Frameworks/Python.framework/Versions/Current/bin/python3 -m pip install --user pipx
-  else
-    PIP_REQUIRE_VIRTUALENV=false python3 -m pip install --user pipx
+    PIP_REQUIRE_VIRTUALENV=false /Library/Frameworks/Python.framework/Versions/Current/bin/python3 -m pip install --user pipx distro
+else
+    PIP_REQUIRE_VIRTUALENV=false python3 -m pip install --user pipx distro
 fi    
 
 PATH=$PATH:$HOME/.local/bin

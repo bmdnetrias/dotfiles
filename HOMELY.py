@@ -1,3 +1,4 @@
+import logging
 import os
 import platform
 import shutil
@@ -5,6 +6,8 @@ import tempfile
 import time
 
 from pathlib import Path
+
+import distro
 
 from homely.files import symlink, mkdir, download
 from homely.install import installpkg
@@ -36,14 +39,13 @@ PG_PACKAGES = """
 libpq-dev python3-dev python3-psycopg2
 """
 
-if install_system == "Linux":
+if install_system == "Linux" and distro.name() == "Ubuntu":
     note("printing sudo environment")
     execute(["sudo", "DEBIAN_FRONTEND=noninteractive", "printenv"])
     note("custom install tzdata")
     execute(
         [
             "sudo",
-            "DEBIAN_FRONTEND=noninteractive",
             "apt-get",
             "install",
             "-y",
@@ -51,17 +53,20 @@ if install_system == "Linux":
             "tzdata",
         ]
     )
+
     for pkg in PYDEV_PACKAGES.split():
         installpkg(pkg.strip(), brew=False)
-
+        
     for pkg in PG_PACKAGES.split():
         installpkg(pkg.strip(), brew=False)
+elif install_system == "Linux" and distro.name() == "Amazon Linux":
+    pass
 
-installpkg("emacs", apt="emacs-nox")
-installpkg("black")
+installpkg("emacs", apt="emacs-nox", yum="emacs-nox")
+# installpkg("black")
 installpkg("htop")
 installpkg("svn", apt="subversion")
-installpkg("ispell")
+# installpkg("ispell")
 installpkg("aspell")
 installpkg("tree")
 installpkg("fd", apt="fd-find")
@@ -168,8 +173,10 @@ with head("pipx"):
         ]
     )
 
-with head("neofetch"):
-    installpkg("neofetch")
+with head("fastfetch"):
+    if haveexecutable("brew"):
+        execute(["brew", "install", "fastfetch"])
+
 
 with head("nerdfonts"):
     if haveexecutable("brew") and install_system == "Darwin":
