@@ -1,3 +1,8 @@
+if [[ "$INSIDE_EMACS" == *comint* || "$INSIDE_EMACS" == *vterm* ]]; then
+  export TERM=xterm-256color
+  set -o emacs
+fi
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -35,13 +40,22 @@ fi
 unset color_prompt force_color_prompt
 
 if [[ -n $(type -p gdircolors) ]]; then
-    test -r ~/.dircolors && eval "$(gdircolors -b ~/.dircolors)" || eval "$(gdircolors -b)"
+   if [[ "$INSIDE_EMACS" == *comint* || "$INSIDE_EMACS" == *vterm* ]]; then
+       eval "$(TERM=xterm-256color gdircolors -b ~/.dircolors.emacs)"
+       PS1='${debian_chroot:+($debian_chroot)}\[\033[01;38;5;117m\]\u@\h\[\033[00m\]:\[\033[01;38;5;117m\]\w\[\033[00m\]\$ '
+    else
+        test -r ~/.dircolors && eval "$(TERM=xterm-256color gdircolors -b ~/.dircolors.emacs)" || eval "$(gdircolors -b)"
+    fi
     alias ls='gls -f -CF --color=auto'
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 elif [[ -n $(type -p dircolors) ]]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+   if [[ "$INSIDE_EMACS" == *comint* || "$INSIDE_EMACS" == *vterm* ]]; then
+       eval "$(TERM=xterm-256color dircolors -b ~/.dircolors.emacs)"
+    else
+        test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    fi
     alias ls='ls -f -CF --color=auto'
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
@@ -56,12 +70,13 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"  # Apple Silicon
+
 [[ -r ~/.config/op/plugins.sh ]] && . ~/.config/op/plugins.sh
 
-if [ -x /etc/bash_completion ] && ! shopt -oq posix; then
-    . /etc/bash_completion
-fi
+# if [ -x /etc/bash_completion ] && ! shopt -oq posix; then
+#     . /etc/bash_completion
+# fi
 
 if [[ -n $(type -p pyenv) ]]; then
     eval "$(pyenv init -)"
@@ -70,3 +85,10 @@ fi
 if [[ -n $(type -p pyenv-virtualenv-init) ]]; then
     eval "$(pyenv virtualenv-init -)";
 fi
+
+alias claude="$HOME/.claude/local/claude"
+
+. "$HOME/.atuin/bin/env"
+
+[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+eval "$(atuin init bash)"

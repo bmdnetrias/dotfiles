@@ -1,13 +1,21 @@
+(setenv "SHELL" "/opt/homebrew/bin/bash")
+
 (setq-default custom-file
 	      (expand-file-name ".custom.el" user-emacs-directory))
+
 (when (file-exists-p custom-file)
   (load custom-file))
 
 (require 'package)
+(require 'tramp)
+(require 'tramp-sh)
+
+(setq vterm-shell "/opt/homebrew/bin/bash")
 
 (setq-default
  load-prefer-newer t
  package-enable-at-startup nil)
+
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives
              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
@@ -34,7 +42,7 @@
 
 (setq exec-path-from-shell-variables '())
 
-(dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE" "PYTHONUSERBASE" "PATH"))
+(dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE" "PYTHONUSERBASE" "PATH" "SHELL"))
   (add-to-list 'exec-path-from-shell-variables var))
 
 ;; sync PATH from env especially on OS X
@@ -69,6 +77,11 @@
 (use-package org :ensure org-plus-contrib)
 (use-package magit)
 (use-package json)
+(use-package vterm
+  :custom
+  (vterm-shell "/opt/homebrew/bin/bash"))
+
+(use-package wgrep-ag :ensure t)
 
 (use-package yaml-mode)
 (use-package go-mode)
@@ -109,7 +122,17 @@
 (add-hook 'markdown-mode-hook 'electric-quote-mode)
 (add-hook 'markdown-mode-hook 'auto-fill-mode)
 
-;; (add-to-list 'ztree-diff-filter-list "__pycache__")
+(with-eval-after-load 'tramp
+  (setq tramp-ssh-controlmaster-options
+        (concat tramp-ssh-controlmaster-options " -o ForwardAgent=yes"))
+  ; (add-to-list 'tramp-connection-properties
+  ;              (list (regexp-quote "/ssh:crossjam@countzero:")
+  ;                    "remote-shell-program" "/usr/local/bin/git"))  
+  )
+
+(setq magit-commit-ask-to-stage 'verbose)
+
+;;; Bind the path so that we don't pickup virtualenv binaries that may be set
 
 (let ((exec-path '("~/.local/bin", "/opt/homebrew/bin", "/usr/local/bin")))
   (setq flymake-ruff-program (executable-find "ruff")))
@@ -150,6 +173,11 @@
   (transient-bind-q-to-quit))
 
 ;; (setq insert-directory-program "gls" dired-use-ls-dired t)
+
+;; (setq exec-path-from-shell-variables '())
+
+(dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE" "PYTHONUSERBASE"))
+  (add-to-list 'exec-path-from-shell-variables var))
 
 (setq
  insert-directory-program (or (executable-find "gls") (executable-find "ls"))

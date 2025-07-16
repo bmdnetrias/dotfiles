@@ -36,9 +36,45 @@ libncursesw5-dev xz-utils libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev tk-d
 """
 
 PG_PACKAGES = """
-libpq-dev python3-dev python3-psycopg2
+libpq-dev python3-dev python3-pip python3-psycopg2
 """
+if install_system == "Linux":
+    note("printing sudo environment")
+    execute(["sudo", "DEBIAN_FRONTEND=noninteractive", "printenv"])
+    note("custom install tzdata")
+    execute(
+        [
+            "sudo",
+            "DEBIAN_FRONTEND=noninteractive",
+            "apt-get",
+            "install",
+            "-y",
+            "--quiet",
+            "tzdata",
+        ]
+    )
+    for pkg in PYDEV_PACKAGES.split():
+        installpkg(pkg.strip(), brew=False)
 
+    for pkg in PG_PACKAGES.split():
+        installpkg(pkg.strip(), brew=False)
+
+installpkg("emacs", apt="emacs-nox")
+installpkg("black")
+installpkg("htop")
+installpkg("svn", apt="subversion")
+installpkg("ispell")
+installpkg("aspell")
+installpkg("tree")
+installpkg("fd", apt="fdfind")
+installpkg("ripgrep")
+installpkg("bat")
+
+if install_system == "Darwin":
+    installpkg("coreutils")
+
+if install_system == "Linux":
+    installpkg("net-tools")
 
 HOMEBREW_INSTALL_SCRIPT = (
     "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
@@ -152,11 +188,14 @@ with head("pyenv"):
 
 with head("pipx"):
     installpkg("pipx")
-    execute(["pipx", "install", "httpie"])
-    execute(["pipx", "install", "xonsh"])
-    execute(["pipx", "install", "cookiecutter"])
-    execute(["pipx", "install", "black"])
-    execute(["pipx", "install", "pgcli"])
+    execute(["pipx", "install", "uv"])
+    haveexecutable("httpie") or execute(["uv", "tool", "install", "httpie"])
+    haveexecutable("xonsh") or execute(["uv", "tool", "install", "xonsh"])
+    haveexecutable("cookiecutter") or execute(["uv", "tool", "install", "cookiecutter"])
+    haveexecutable("black") or execute(["uv", "tool", "install", "black"])
+    haveexecutable("pgcli") or execute(["uv", "tool", "install", "pgcli"])
+    haveexecutable("ruff") or execute(["uv", "tool", "install", "ruff"])
+
     execute(
         [
             str(home_dir / ".local" / "bin" / "xonsh"),
@@ -203,6 +242,7 @@ INSTALL_DOTFILES = [
     ("xonshrc", ".xonshrc"),
     ("xonsh_iterm2.json", "~/.iterm2/xonsh.json"),
     ("pelicandev", "~/.local/bin/pelicandev"),
+    ("dircolors_emacs", "~/.dircolors.emacs"),
     (
         "pyenv_virtualenv_after_bash",
         "~/.pyenv/plugins/pyenv-virtualenv/etc/pyenv.d/virtualenv/after.bash",
