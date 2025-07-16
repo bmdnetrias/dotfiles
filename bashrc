@@ -90,5 +90,11 @@ alias claude="$HOME/.claude/local/claude"
 
 . "$HOME/.atuin/bin/env"
 
+[ -f $HOMEBREW_PREFIX/etc/profile.d/bash-preexec.sh ] && . $HOMEBREW_PREFIX/etc/profile.d/bash-preexec.sh
+
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+
 eval "$(atuin init bash)"
+eval "$(zoxide init bash)"
+eval "$(starship init bash)"
+eval "$(direnv hook bash)"

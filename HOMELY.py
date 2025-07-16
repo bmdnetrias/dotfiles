@@ -1,4 +1,3 @@
-import logging
 import os
 import platform
 import shutil
@@ -6,8 +5,6 @@ import tempfile
 import time
 
 from pathlib import Path
-
-import distro
 
 from homely.files import symlink, mkdir, download
 from homely.install import installpkg
@@ -69,6 +66,11 @@ installpkg("tree")
 installpkg("fd", apt="fdfind")
 installpkg("ripgrep")
 installpkg("bat")
+installpkg("bash-preexec")
+installpkg("zoxide")
+installpkg("starship")
+installpkg("direnv")
+
 
 if install_system == "Darwin":
     installpkg("coreutils")
