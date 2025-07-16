@@ -39,45 +39,6 @@ PG_PACKAGES = """
 libpq-dev python3-dev python3-psycopg2
 """
 
-if install_system == "Linux" and distro.name() == "Ubuntu":
-    note("printing sudo environment")
-    execute(["sudo", "DEBIAN_FRONTEND=noninteractive", "printenv"])
-    note("custom install tzdata")
-    execute(
-        [
-            "sudo",
-            "apt-get",
-            "install",
-            "-y",
-            "--quiet",
-            "tzdata",
-        ]
-    )
-
-    for pkg in PYDEV_PACKAGES.split():
-        installpkg(pkg.strip(), brew=False)
-        
-    for pkg in PG_PACKAGES.split():
-        installpkg(pkg.strip(), brew=False)
-elif install_system == "Linux" and distro.name() == "Amazon Linux":
-    pass
-
-installpkg("emacs", apt="emacs-nox", yum="emacs-nox")
-# installpkg("black")
-installpkg("htop")
-installpkg("svn", apt="subversion")
-# installpkg("ispell")
-installpkg("aspell")
-installpkg("tree")
-installpkg("fd", apt="fd-find")
-installpkg("fzf")
-installpkg("git-delta")
-
-if install_system == "Darwin":
-    installpkg("coreutils")
-
-if install_system == "Linux":
-    installpkg("net-tools")
 
 HOMEBREW_INSTALL_SCRIPT = (
     "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
@@ -119,6 +80,50 @@ with head("homebrew"):
             note("Unknown brew platform")
     else:
         note("homebrew already installed")
+
+if install_system == "Linux" and distro.name() == "Ubuntu":
+    note("printing sudo environment")
+    execute(["sudo", "DEBIAN_FRONTEND=noninteractive", "printenv"])
+    note("custom install tzdata")
+    execute(
+        [
+            "sudo",
+            "apt-get",
+            "install",
+            "-y",
+            "--quiet",
+            "tzdata",
+        ]
+    )
+
+    for pkg in PYDEV_PACKAGES.split():
+        installpkg(pkg.strip(), brew=False)
+        
+    for pkg in PG_PACKAGES.split():
+        installpkg(pkg.strip(), brew=False)
+elif install_system == "Linux" and distro.name() == "Amazon Linux":
+    pass
+
+installpkg("emacs", apt="emacs-nox", yum="emacs-nox")
+# installpkg("black")
+installpkg("htop")
+installpkg("svn", apt="subversion")
+# installpkg("ispell")
+installpkg("aspell")
+installpkg("tree")
+# installpkg("ruff")
+installpkg("ripgrep")
+installpkg("fd", apt="fd-find")
+installpkg("fzf")
+installpkg("git-delta")
+installpkg("duf")
+installpkg("dust")
+
+if install_system == "Darwin":
+    installpkg("coreutils")
+
+if install_system == "Linux":
+    installpkg("net-tools")
 
 with head("pyenv"):
     note("Installing pyenv")

@@ -56,6 +56,9 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
+[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+[[ -r ~/.config/op/plugins.sh ]] && . ~/.config/op/plugins.sh
+
 if [ -x /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi

@@ -34,7 +34,7 @@
 
 (setq exec-path-from-shell-variables '())
 
-(dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE" "PYTHONUSERBASE"))
+(dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE" "PYTHONUSERBASE" "PATH"))
   (add-to-list 'exec-path-from-shell-variables var))
 
 ;; sync PATH from env especially on OS X
@@ -42,6 +42,29 @@
   :if (memq window-system '(mac ns x))
   :ensure t
   :config (exec-path-from-shell-initialize))
+
+(use-package rg
+  :ensure t
+  :config
+  (setq rg-command-line-flags '("--max-columns" "150"))
+  :bind (("C-c C-r" . rg-menu)
+	 ("C-c r" . rg)
+	 :map rg-mode-map
+	 ("n" . next-line)
+	 ("p" . previous-line)
+	 ("RET" . rg-visit-file)
+	 ("C-o" . rg-dwim-current-dir)
+	 ("C-c C-f" . rg-rerun-change-files)
+	 ("C-c C-d" . rg-rerun-change-dir))
+  )
+
+(setq rg-ignore-case 'smart)
+(setq rg-group-result t)
+
+(defun rg-project-files ()
+  "Search only through project files."
+  (interactive)
+  (rg-menu-search-pattern nil nil nil "--type-add 'proj:include=*.{el,js,py,rb,html,css}' -t proj"))
 
 (use-package org :ensure org-plus-contrib)
 (use-package magit)

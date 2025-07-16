@@ -4,7 +4,10 @@
 [user]
 	name = Brian Dennis
 	email = bdennis+github@netrias.com
-	
+
+# [credential]
+#     helper = 
+
 # Specific to dotfiles to use a key authorized for my personal github account
 # My dotfiles repo is private but useful for consistency across personal and work machines
 # .gitconfig.bmdmc has to be updated per machine though
@@ -17,9 +20,6 @@
 [core]
 	excludesfile = "~/.gitignore"
 
-# [url "git@github.com:"]
-#     insteadOf = https://github.com/
-
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
@@ -27,3 +27,13 @@
 	required = true
 [filter "annex"]
 	process = git-annex filter-process
+
+[credential "https://github.com"]
+	helper = 
+ 	helper = !/opt/homebrew/bin/gh auth git-credential
+	
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+	
+
