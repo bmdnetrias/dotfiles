@@ -26,16 +26,6 @@ if [[ $OSTYPE == "darwin"* ]]; then
     PATH="/Library/Frameworks/Python.framework/Versions/Current/bin:${PATH}"
 fi
 
-if [[ -n $(type -p pyenv) ]]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-elif [[ $OSTYPE == "linux-"* && -d "$HOME/.pyenv" ]]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-fi
-
 # Created by `userpath` on 2020-06-27 23:35:17
 export PATH="$PATH:$HOME/.local/bin"
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin
@@ -79,4 +69,5 @@ PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:${PATH}"
 export PATH
 
 . "$HOME/.atuin/bin/env"
+
 

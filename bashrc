@@ -78,13 +78,49 @@ fi
 #     . /etc/bash_completion
 # fi
 
-if [[ -n $(type -p pyenv) ]]; then
-    eval "$(pyenv init -)"
-fi
+uvp() {
+    local project_name
+    local dir_name=$(basename "$PWD")
+    
+    # If there are no arguments or the last argument starts with a dash, use dir_name
+    if [ $# -eq 0 ] || [[ "${!#}" == -* ]]; then
+        project_name="$dir_name"
+    else
+        project_name="${!#}"
+        set -- "${@:1:$#-1}"
+    fi
+    
+    export UV_PROJECT_ENVIRONMENT=".${project_name:-venv}"
 
-if [[ -n $(type -p pyenv-virtualenv-init) ]]; then
-    eval "$(pyenv virtualenv-init -)";
-fi
+    # Check if .envrc already exists
+    if [ -f .envrc ]; then
+        echo "Error: .envrc already exists" >&2
+        return 1
+    fi
+
+
+    # Create .envrc
+    echo "layout python" > .envrc
+    echo "export UV_PROJECT_ENVIRONMENT=$PWD/${UV_PROJECT_ENVIRONMENT}" >> .envrc
+
+    # Create Python package using uv with all passed arguments
+    if ! uv init --package --build-backend setuptools --name $project_name; then
+        echo "Error: Failed to create uv project" >&2
+        return 1
+    fi
+
+    # Create Python package using uv with all passed arguments
+    if ! uv sync; then
+        echo "Error: Failed to sync uv project" >&2
+        return 1
+    fi
+
+    # Append to ~/.projects
+    # echo "${project_name} = ${PWD}" >> ~/.projects
+
+    # Allow direnv to immediately activate the virtual environment
+    direnv allow
+}
 
 alias claude="$HOME/.claude/local/claude"
 
@@ -92,9 +128,10 @@ alias claude="$HOME/.claude/local/claude"
 
 [ -f $HOMEBREW_PREFIX/etc/profile.d/bash-preexec.sh ] && . $HOMEBREW_PREFIX/etc/profile.d/bash-preexec.sh
 
-[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+# [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
 
 eval "$(atuin init bash)"
 eval "$(zoxide init bash)"
 eval "$(starship init bash)"
 eval "$(direnv hook bash)"
+
