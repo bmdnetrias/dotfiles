@@ -100,8 +100,8 @@ uvp() {
 
 
     # Create .envrc
-    echo "layout python" > .envrc
     echo "export UV_PROJECT_ENVIRONMENT=$PWD/${UV_PROJECT_ENVIRONMENT}" >> .envrc
+    echo "layout python" >> .envrc
 
     # Create Python package using uv with all passed arguments
     if ! uv init --package --build-backend setuptools --name $project_name; then
@@ -116,10 +116,73 @@ uvp() {
     fi
 
     # Append to ~/.projects
-    # echo "${project_name} = ${PWD}" >> ~/.projects
+    echo "${project_name}=${PWD}" >> ~/.projects
 
     # Allow direnv to immediately activate the virtual environment
     direnv allow
+}
+
+uvpi() {
+    local project_name=$(basename "$PWD")
+
+    if [ -n "$VIRTUAL_ENV" ]; then
+       	 export UV_PROJECT_ENVIRONMENT="$VIRTUAL_ENV"
+    elif [ -n "$UV_PROJECT_ENVIRONMENT" ]; then
+    	 :
+    elif [ -d ".venv" ]; then
+     	 export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
+    else
+	 export UV_PROJECT_ENVIRONMENT="$PWD/$project_name"
+    fi
+
+    echo "UV_PROJECT_ENVIRONMENT=$UV_PROJECT_ENVIRONMENT"
+
+    # Check if .envrc already exists
+    if [ -f .envrc ]; then
+        echo "Error: .envrc already exists" >&2
+        return 1
+    fi
+
+    # Create .envrc
+    echo "export UV_PROJECT_ENVIRONMENT=${UV_PROJECT_ENVIRONMENT}" >> .envrc
+    echo "layout python" >> .envrc
+
+    # Append to ~/.projects
+    echo "${project_name}=${PWD}" >> ~/.projects
+
+    # Allow direnv to immediately activate the virtual environment
+    direnv allow
+}
+
+
+uvwork() {
+    local project_name="$1"
+    local projects_file="$HOME/.projects"
+    local project_dir
+
+    # Check for projects config file
+    if [[ ! -f "$projects_file" ]]; then
+        echo "Error: $projects_file not found" >&2
+        return 1
+    fi
+
+    # Get the project directory for the given project name
+    project_dir=$(grep -E "^$project_name\s*=" "$projects_file" | sed 's/^[^=]*=\s*//')
+
+    # Ensure a project directory was found
+    if [[ -z "$project_dir" ]]; then
+        echo "Error: Project '$project_name' not found in $projects_file" >&2
+        return 1
+    fi
+
+    # Ensure the project directory exists
+    if [[ ! -d "$project_dir" ]]; then
+        echo "Error: Directory -$project_dir- does not exist" >&2
+        return 1
+    fi
+
+    # Change directories
+    cd "$project_dir"
 }
 
 alias claude="$HOME/.claude/local/claude"
