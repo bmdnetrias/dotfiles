@@ -10,27 +10,20 @@ else
    echo "Warning: brew command is not available";
 fi
 
+export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin"
+export PATH=$PATH:/usr/local/bin:/usr/local/sbin
+export EDITOR="emacsclient -t"
+export VISUAL="emacsclient -c"
+export ALTERNATE_EDITOR=""
+export PYTHONUSERBASE=$HOME/.local
+
 # Following advice from Glyph Lefkowitz on just using the PSF Python on macos
 #
 # https://blog.glyph.im/2023/08/get-your-mac-python-from-python-dot-org.html
 #
 # Setting PATH for Python 3.11
-# Ahead of homebrew but after pyenv on macOS
-# pyenv system should then fall through to the python.org Python install
-# but avoid the Apple "builtin" python3
-#
 # Could conceivably use Current in place of 3.11
 #
-
-if [[ $OSTYPE == "darwin"* ]]; then
-    PATH="/Library/Frameworks/Python.framework/Versions/Current/bin:${PATH}"
-fi
-
-# Created by `userpath` on 2020-06-27 23:35:17
-export PATH="$PATH:$HOME/.local/bin"
-export PATH=$PATH:/usr/local/bin:/usr/local/sbin
-export EDITOR="emacs -nw"
-export PYTHONUSERBASE=$HOME/.local
 
 if [[ -x "/Applications/Visual Studio Code.app/Contents/Resources/app/bin" ]]; then
     export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
@@ -61,6 +54,7 @@ if [ -f "$HOME/repos/google-cloud-sdk/completion.bash.inc" ]; then . "$HOME/repo
 # Setting PATH for Python 3.12
 # The original version is saved in .bash_profile.pysave
 PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:${PATH}"
+PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:${PATH}"
 export PATH
 
 # Setting PATH for Python 3.13
@@ -68,6 +62,7 @@ export PATH
 PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:${PATH}"
 export PATH
 
-. "$HOME/.atuin/bin/env"
+[ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"
 
+export PATH
 

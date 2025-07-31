@@ -23,7 +23,7 @@ $PL_PROMPT = u"conch>short_cwd>rtns"
 
 pl_build_prompt
 
-# neofetch
+# hyfetch
 neowofetch
 
 

@@ -1,3 +1,10 @@
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
 if [[ "$INSIDE_EMACS" == *comint* || "$INSIDE_EMACS" == *vterm* ]]; then
   export TERM=xterm-256color
   set -o emacs
@@ -9,36 +16,6 @@ case $- in
       *) return;;
 esac
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
-HISTCONTROL=ignoreboth
-
-# append to the history file, don't overwrite it
-shopt -s histappend
-
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
-    else
-	color_prompt=
-    fi
-fi
-
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
-
 if [[ -n $(type -p gdircolors) ]]; then
    if [[ "$INSIDE_EMACS" == *comint* || "$INSIDE_EMACS" == *vterm* ]]; then
        eval "$(TERM=xterm-256color gdircolors -b ~/.dircolors.emacs)"
@@ -46,6 +23,7 @@ if [[ -n $(type -p gdircolors) ]]; then
     else
         test -r ~/.dircolors && eval "$(TERM=xterm-256color gdircolors -b ~/.dircolors.emacs)" || eval "$(gdircolors -b)"
     fi
+
     alias ls='gls -f -CF --color=auto'
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
@@ -62,21 +40,15 @@ elif [[ -n $(type -p dircolors) ]]; then
     alias egrep='egrep --color=auto'
 fi
 
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-
-if [ -f ~/.bash_aliases ]; then
+if [ -r ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
 [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"  # Apple Silicon
 
-[[ -r ~/.config/op/plugins.sh ]] && . ~/.config/op/plugins.sh
+[[ -r "~/.config/op/plugins.sh" ]] && . ~/.config/op/plugins.sh
 
-# if [ -x /etc/bash_completion ] && ! shopt -oq posix; then
-#     . /etc/bash_completion
-# fi
+alias claude="$HOME/.claude/local/claude"
 
 uvp() {
     local project_name
@@ -90,7 +62,7 @@ uvp() {
         set -- "${@:1:$#-1}"
     fi
     
-    UV_PROJECT_ENVIRONMENT=".${project_name:-venv}"
+    UV_PROJECT_ENVIRONMENT="$PWD/.${project_name:-venv}"
 
     # Check if .envrc already exists
     if [ -f .envrc ]; then
@@ -100,12 +72,11 @@ uvp() {
 
 
     # Create .envrc
-    echo "export UV_PROJECT_ENVIRONMENT=$PWD/${UV_PROJECT_ENVIRONMENT}" >> .envrc
+    echo "export UV_PROJECT_ENVIRONMENT=${UV_PROJECT_ENVIRONMENT}" >> .envrc
     echo "layout python" >> .envrc
 
     # Create Python package using uv with all passed arguments
-    # if ! uv init --package --build-backend setuptools --name $project_name; then
-    if ! uv init --package --build-backend uv --name $project_name; then
+    if ! uv init --package --build-backend setuptools --name $project_name; then
         echo "Error: Failed to create uv project" >&2
         return 1
     fi
@@ -116,6 +87,9 @@ uvp() {
         return 1
     fi
 
+    # Append to ~/.projects
+    echo "${project_name}=${PWD}" >> ~/.projects
+
     # Allow direnv to immediately activate the virtual environment
     direnv allow
 }
@@ -123,14 +97,14 @@ uvp() {
 uvpi() {
     local project_name=$(basename "$PWD")
 
-    if [ -n "$VIRTUAL_ENV" ]; then
-       	 UV_PROJECT_ENVIRONMENT="$VIRTUAL_ENV"
-    elif [ -n "$UV_PROJECT_ENVIRONMENT" ]; then
+    if [ -n "$UV_PROJECT_ENVIRONMENT" ]; then
     	 :
-    elif [ -d "$PWD/.venv" ]; then
+    elif [ -n "$VIRTUAL_ENV" ]; then
+       	 UV_PROJECT_ENVIRONMENT="$VIRTUAL_ENV"
+    elif [ -d ".venv" ]; then
      	 UV_PROJECT_ENVIRONMENT="$PWD/.venv"
     else
-	 UV_PROJECT_ENVIRONMENT="$PWD/.$project_name"
+	 UV_PROJECT_ENVIRONMENT="$PWD/$project_name"
     fi
 
     echo "UV_PROJECT_ENVIRONMENT=$UV_PROJECT_ENVIRONMENT"
@@ -150,16 +124,16 @@ uvpi() {
 }
 
 
-alias claude="$HOME/.claude/local/claude"
+# Assume the platforms I work on will only have one of the following
+[ -f /opt/homebrew/etc/profile.d/bash-preexec.sh ] && . /opt/homebrew/etc/profile.d/bash-preexec.sh
+[ -f /usr/local/etc/profile.d/bash-preexec.sh ] && . /usr/local/etc/profile.d/bash-preexec.sh
 
-. "$HOME/.atuin/bin/env"
+if [ -f $HOME/.atuin/bin/env ]; then
+    . "$HOME/.atuin/bin/env"
+fi
 
-[ -f $HOMEBREW_PREFIX/etc/profile.d/bash-preexec.sh ] && . $HOMEBREW_PREFIX/etc/profile.d/bash-preexec.sh
-
-# [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
-
-eval "$(atuin init bash)"
 eval "$(starship init bash)"
-eval "$(direnv hook bash)"
 eval "$(zoxide init bash)"
+eval "$(atuin init bash)"
+eval "$(direnv hook bash)"
 
